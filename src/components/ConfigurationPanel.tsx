@@ -143,8 +143,8 @@ pause
           ))}
         </div>
         <p className="text-[11px] text-slate-400">
-          {config.instanceCount === 6
-            ? '⭐ Chuẩn khuyên dùng: 6 luồng video Full HD dọc chạy song song'
+          {config.instanceCount === 8
+            ? '⭐ Chuẩn khuyên dùng: 8 luồng video Full HD dọc chạy song song'
             : `Đang render đồng thời ${config.instanceCount} cuộc đua độc lập`}
         </p>
       </div>
@@ -243,7 +243,13 @@ pause
             <button
               key={opt.count}
               id={`btn-cars-${opt.count}`}
-              onClick={() => setSelectedCars(opt.count)}
+              onClick={() => {
+                setSelectedCars(opt.count);
+                onChangeConfig({ carsPerRace: opt.count as any });
+                if (onApplyConfig) {
+                  onApplyConfig({ carsPerRace: opt.count as any });
+                }
+              }}
               className={`py-2 px-1 rounded-lg text-xs font-bold transition cursor-pointer flex flex-col items-center justify-center ${
                 selectedCars === opt.count
                   ? 'bg-amber-600 text-white shadow-md shadow-amber-950 ring-1 ring-amber-400'

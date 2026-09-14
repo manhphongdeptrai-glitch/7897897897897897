@@ -855,7 +855,8 @@ export class VideoRecorderService {
     customDurationSeconds?: number,
     onProgress?: (progress: ExportProgressEvent) => void
   ): Promise<VideoRecordJob[]> {
-    const activeInstances = instances.slice(0, 6);
+    const targetCount = config?.instanceCount || 8;
+    const activeInstances = instances.slice(0, targetCount);
     const jobs: VideoRecordJob[] = [];
     const total = activeInstances.length;
 

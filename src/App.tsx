@@ -25,14 +25,15 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<MultiInstanceEngine | null>(null);
 
-  // Cấu hình hệ thống mặc định: 6 luồng đồng thời, 1080x1920 (9:16 dọc), .mp4, 60 FPS
+  // Cấu hình hệ thống mặc định: 8 luồng đồng thời, 1080x1920 (9:16 dọc), .mp4, 60 FPS
   const [config, setConfig] = useState<SystemConfig>({
-    instanceCount: 6, // Mặc định chạy đồng thời 6 luồng video Full HD dọc
+    instanceCount: 8, // Mặc định chạy đồng thời 8 luồng video Full HD dọc
     resolution: '1080x1920 (Full HD Dọc)',
     aspectRatio: '9:16',
     fileFormat: 'mp4',
     fps: 60,
     durationSeconds: 60, // Mặc định 60 giây (1 phút) chuẩn vàng 120MB cực nét 60 FPS
+    carsPerRace: 10,
     saveDirectory: 'D:\\RacingVideoFactory\\Videos\\',
     autoExportToDisk: false,
     codec: 'video/webm;codecs=vp9',
@@ -217,7 +218,7 @@ export default function App() {
     if (canvasRef.current) {
       videoRecorderService.setMainCanvas(canvasRef.current);
     }
-    addLog('success', `Đã khởi động hệ thống mô phỏng 6 Luồng với tốc độ tối đa 60-120 FPS. Cứ mỗi ${config.durationSeconds || 120}s hệ thống sẽ tự động xuất video vào Kho Video.`);
+    addLog('success', `Đã khởi động hệ thống mô phỏng ${config.instanceCount} Luồng với tốc độ tối đa 60-120 FPS. Cứ mỗi ${config.durationSeconds || 120}s hệ thống sẽ tự động xuất video vào Kho Video.`);
   };
 
   const handleStop = () => {
@@ -240,6 +241,9 @@ export default function App() {
   const handleChangeConfig = (updates: Partial<SystemConfig>) => {
     setConfig(prev => {
       const updated = { ...prev, ...updates };
+      if (engineRef.current && (updates.carsPerRace !== undefined || updates.instanceCount !== undefined)) {
+        engineRef.current.applyConfig(updated);
+      }
       addLog('info', `Cập nhật cấu hình: ${Object.keys(updates).join(', ')}`);
       return updated;
     });
@@ -336,12 +340,12 @@ export default function App() {
   const handleExport6ThreadsNow = async () => {
     if (!engineRef.current) return;
     setIsExporting6Threads(true);
-    setExportProgressText('ĐANG XUẤT: LUỒNG 1/6 (0%)');
-    addLog('info', `Bắt đầu xuất đồng loạt 6 Video Dọc 1080x1920 (9:16) 60 FPS (${config.durationSeconds || 120}s) với WebCodecs tăng tốc GPU...`);
+    setExportProgressText(`ĐANG XUẤT: LUỒNG 1/${config.instanceCount} (0%)`);
+    addLog('info', `Bắt đầu xuất đồng loạt ${config.instanceCount} Video Dọc 1080x1920 (9:16) 60 FPS (${config.durationSeconds || 120}s) với WebCodecs tăng tốc GPU...`);
     if (canvasRef.current) {
       videoRecorderService.bindEngine(engineRef.current, canvasRef.current);
     }
-    const activeInsts = (Array.from(engineRef.current.instances.values()) as RacingInstance[]).slice(0, 6);
+    const activeInsts = (Array.from(engineRef.current.instances.values()) as RacingInstance[]).slice(0, config.instanceCount);
     try {
       const jobs = await videoRecorderService.exportAll6Threads(
         activeInsts,
@@ -362,12 +366,12 @@ export default function App() {
           totalVideosCreated: prev.totalVideosCreated + jobs.length,
           diskFreeGB: Math.max(5, prev.diskFreeGB - (jobs.length * 4) / 1024)
         }));
-        addLog('success', `Đã xuất thành công 6 Video Dọc Full HD 1080x1920 (9:16) 60 FPS chuẩn không tua nhanh, không giật lag! Đã lưu vào Kho Video.`);
+        addLog('success', `Đã xuất thành công ${jobs.length} Video Dọc Full HD 1080x1920 (9:16) 60 FPS chuẩn không tua nhanh, không giật lag! Đã lưu vào Kho Video.`);
         setIsLibraryOpen(true);
       }
     } catch (err) {
-      console.warn('Lỗi xuất 6 video:', err);
-      addLog('error', 'Có lỗi phát sinh trong quá trình xuất video 6 luồng.');
+      console.warn('Lỗi xuất video:', err);
+      addLog('error', `Có lỗi phát sinh trong quá trình xuất video ${config.instanceCount} luồng.`);
     } finally {
       setIsExporting6Threads(false);
       setExportProgressText(null);

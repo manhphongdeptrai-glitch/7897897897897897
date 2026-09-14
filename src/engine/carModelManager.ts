@@ -9,6 +9,7 @@ export interface CarModelDefinition {
   index: number;
   url: string;
   name: string;
+  rotationY?: number; // Góc xoay trục Y (radian) chuẩn hóa hướng mũi xe nhìn về phía trước (+Z)
   rotateY90: boolean;
   targetLength: number; // 3.3 meters (tỉ lệ chuẩn xe đua thể thao khí động học)
 }
@@ -23,14 +24,15 @@ export class CarModelManager {
   public static readonly TARGET_CAR_LENGTH = 3.3;
 
   public static readonly MODELS: CarModelDefinition[] = [
-    { index: 0, url: '/cars/xedep_1.usdz', name: 'Speedster Hyper GT', rotateY90: true, targetLength: 3.3 },
-    { index: 1, url: '/cars/xedep_2.usdz', name: 'Mansory Carbon RS', rotateY90: false, targetLength: 3.3 },
-    { index: 2, url: '/cars/xedep_3.usdz', name: 'Ferrari SF90 Spider', rotateY90: false, targetLength: 3.3 },
-    { index: 3, url: '/cars/xedep_4.usdz', name: 'Apex Prototype AWD', rotateY90: false, targetLength: 3.3 },
-    { index: 4, url: '/cars/xedep_5.usdz', name: 'Bugatti Tourbillon', rotateY90: false, targetLength: 3.3 },
-    { index: 5, url: '/cars/xedep_6.usdz', name: 'LeMans Prototype Aero', rotateY90: true, targetLength: 3.3 },
-    { index: 6, url: '/cars/xedep_7.usdz', name: 'Deus Vayanne Hypercar', rotateY90: false, targetLength: 3.3 },
-    { index: 7, url: '/cars/xedep_8.usdz', name: 'Ferrari Monza SP2', rotateY90: false, targetLength: 3.3 },
+    { index: 0, url: '/cars/xedep_1.usdz', name: 'Speedster Hyper GT', rotationY: Math.PI / 2, rotateY90: true, targetLength: 3.3 },
+    { index: 1, url: '/cars/xedep_2.usdz', name: 'Mansory Carbon RS', rotationY: 0, rotateY90: false, targetLength: 3.3 },
+    { index: 2, url: '/cars/xedep_3.usdz', name: 'Ferrari SF90 Spider', rotationY: 0, rotateY90: false, targetLength: 3.3 },
+    { index: 3, url: '/cars/xedep_4.usdz', name: 'Apex Prototype AWD', rotationY: 0, rotateY90: false, targetLength: 3.3 },
+    { index: 4, url: '/cars/xedep_5.usdz', name: 'Bugatti Tourbillon', rotationY: 0, rotateY90: false, targetLength: 3.3 },
+    // Xe số 5 (LeMans Prototype Aero): mũi xe ở trục +X ban đầu, cần xoay -90 độ (-PI/2) để hướng thẳng về phía trước (+Z), sửa triệt để lỗi xe bị quay ngược về sau
+    { index: 5, url: '/cars/xedep_6.usdz', name: 'LeMans Prototype Aero', rotationY: -Math.PI / 2, rotateY90: false, targetLength: 3.3 },
+    { index: 6, url: '/cars/xedep_7.usdz', name: 'Deus Vayanne Hypercar', rotationY: 0, rotateY90: false, targetLength: 3.3 },
+    { index: 7, url: '/cars/xedep_8.usdz', name: 'Ferrari Monza SP2', rotationY: 0, rotateY90: false, targetLength: 3.3 },
   ];
 
   private constructor() {
@@ -199,8 +201,10 @@ export class CarModelManager {
 
     wrapper.add(contentGroup);
 
-    // 3. Xoay góc nếu mô hình hướng ngang
-    if (def.rotateY90) {
+    // 3. Xoay góc nếu mô hình hướng ngang hoặc cần chuẩn hóa hướng tiến
+    if (def.rotationY !== undefined) {
+      contentGroup.rotation.y = def.rotationY;
+    } else if (def.rotateY90) {
       contentGroup.rotation.y = Math.PI / 2;
     }
     contentGroup.updateMatrixWorld(true);

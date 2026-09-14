@@ -159,19 +159,19 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 onClick={onExport6Videos}
                 disabled={isExporting6Videos}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-gradient-to-r from-cyan-600 via-sky-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold shadow-md shadow-cyan-950/60 transition active:scale-95 cursor-pointer disabled:cursor-wait"
-                title="Xuất ngay 6 Video Dọc 1080x1920 (9:16) 60 FPS chuẩn không giật lag, tua nhanh"
+                title={`Xuất ngay ${config.instanceCount} Video Dọc 1080x1920 (9:16) 60 FPS chuẩn không giật lag, tua nhanh`}
               >
                 {isExporting6Videos ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin text-cyan-200" />
                     <span className="font-mono text-cyan-100 font-bold tracking-wide">
-                      {exportProgressText || 'ĐANG XUẤT: LUỒNG 1/6 (0%)'}
+                      {exportProgressText || `ĐANG XUẤT: LUỒNG 1/${config.instanceCount} (0%)`}
                     </span>
                   </>
                 ) : (
                   <>
                     <Video className="w-4 h-4 text-cyan-200" />
-                    <span>XUẤT 6 VIDEO DỌC (9:16)</span>
+                    <span>XUẤT {config.instanceCount} VIDEO DỌC (9:16)</span>
                   </>
                 )}
               </button>

@@ -40,7 +40,7 @@ export class MultiInstanceEngine {
     // High performance mode: disable heavy shadow maps for 6-10 simultaneous viewports to guarantee 60 FPS
     this.renderer.shadowMap.enabled = false;
 
-    this.updateInstanceCount(config.instanceCount, config.durationSeconds);
+    this.updateInstanceCount(config.instanceCount, config.durationSeconds, config.carsPerRace || 10);
     this.handleResize();
 
     window.addEventListener('resize', this.handleResize);
@@ -248,15 +248,15 @@ export class MultiInstanceEngine {
     let cols = 1;
     let rows = 1;
     if (count === 2) {
-      cols = 2; rows = 1;
+      cols = cssWidth > 640 ? 2 : 1; rows = cssWidth > 640 ? 1 : 2;
     } else if (count <= 4) {
       cols = 2; rows = 2;
     } else if (count <= 6) {
-      cols = 3; rows = 2;
+      cols = cssWidth > 640 ? 3 : 2; rows = cssWidth > 640 ? 2 : 3;
     } else if (count <= 8) {
-      cols = 4; rows = 2;
+      cols = cssWidth > 640 ? 4 : 2; rows = cssWidth > 640 ? 2 : 4;
     } else if (count <= 10) {
-      cols = 5; rows = 2;
+      cols = cssWidth > 640 ? 5 : 2; rows = cssWidth > 640 ? 2 : 5;
     }
 
     const cellWidth = Math.floor(cssWidth / cols);
